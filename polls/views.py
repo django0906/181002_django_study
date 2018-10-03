@@ -3,6 +3,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
 
+from django.utils import timezone
+
 from .models import Question, Choice
 
 
@@ -15,7 +17,10 @@ class IndexView(generic.ListView):
     # 기존 함수에서처럼 일일이 작업할 해줄 필요없이
     # 간단하게 작업이 가능.
     def get_queryset(self):
-        return Question.objects.order_by('-pub_date')[:5]
+        # return Question.objects.order_by('-pub_date')[:5]
+        return Question.objects.filter(
+            pub_date__lte=timezone.now()
+        ).order_by('-pub_date')[:5]
 
 
 # Detail같은 경우에도 존재.
@@ -23,6 +28,9 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Question
     template_name = 'polls/detail.html'
+
+    def get_queryset(self):
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 
 class ResultsView(generic.DetailView):
